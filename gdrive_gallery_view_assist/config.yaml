@@ -1,0 +1,51 @@
+name: GoogleDrive Gallery for View Assist
+slug: gdrive_gallery_view_assist
+description: Serve Google Drive folder images for View Assist backgrounds
+version: 0.4.5
+url: https://github.com/deathsfaction/gdrive_gallery_view_assist
+startup: services
+boot: auto
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: Image endpoint for View Assist
+options:
+  client_id: ""
+  client_secret: ""
+  refresh_token: ""
+  drive_folder_id: ""
+  drive_include_shared: false
+  drive_recursive: false
+  exclude_patterns: ""
+  cache_images: false
+  cache_max_items: 0
+  cache_max_mb: 0
+  prefetch_next: false
+  daily_shuffle: false
+  port: 8099
+  refresh_interval_minutes: 30
+  max_items: 500
+  mode: random
+schema:
+  client_id: str
+  client_secret: str
+  refresh_token: str
+  drive_folder_id: str
+  drive_include_shared: bool
+  drive_recursive: bool
+  exclude_patterns: str
+  cache_images: bool
+  cache_max_items: int
+  cache_max_mb: int
+  prefetch_next: bool
+  daily_shuffle: bool
+  port: int
+  refresh_interval_minutes: int
+  max_items: int
+  mode: list(random|sequential)
