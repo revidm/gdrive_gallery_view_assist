@@ -49,7 +49,7 @@ async def health() -> dict:
         "drive_folder_id": settings.drive_folder_id,
         "refresh_interval_minutes": settings.refresh_interval_minutes,
         "item_count": status["item_count"],
-        "last_refresh": status["last_refresh"],
+        "last_refresh": status["last_refresh_iso"],
         "cache_items": status["cache_items"],
         "cache_bytes": status["cache_bytes"],
     }

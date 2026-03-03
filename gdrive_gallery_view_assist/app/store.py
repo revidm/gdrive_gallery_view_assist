@@ -129,6 +129,11 @@ class ItemStore:
         return {
             "item_count": item_count,
             "last_refresh": fetched_at,
+            "last_refresh_iso": time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime(fetched_at)
+            )
+            if fetched_at
+            else None,
             "cache_items": cache_items,
             "cache_bytes": cache_bytes,
         }

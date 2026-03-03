@@ -1,7 +1,7 @@
 name: GoogleDrive Gallery for View Assist
 slug: gdrive_gallery_view_assist
 description: Serve Google Drive folder images for View Assist backgrounds
-version: 0.4.7
+version: 0.4.8
 url: https://github.com/deathsfaction/gdrive_gallery_view_assist
 startup: services
 boot: auto

@@ -12,6 +12,10 @@
 
 - Add /health endpoint with cache and index metrics.
 
+## 0.4.8
+
+- Return human-readable last refresh time in /health.
+
 ## 0.4.4
 
 - Document changelog usage.
