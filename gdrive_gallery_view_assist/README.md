@@ -55,7 +55,7 @@ pip install -r tools/requirements.txt
 export GPHOTOS_CLIENT_ID="..."
 export GPHOTOS_CLIENT_SECRET="..."
 export OAUTH_SCOPE="https://www.googleapis.com/auth/drive.readonly"
-python tools/gphotos_oauth_helper.py
+python tools/google_oauth_helper.py
 ```
 
 ## Drive Folder ID
