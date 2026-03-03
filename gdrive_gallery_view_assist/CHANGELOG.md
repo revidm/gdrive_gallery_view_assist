@@ -4,6 +4,10 @@
 
 - Add Drive recursion, exclude patterns, cache limits, and daily shuffle.
 
+## 0.4.6
+
+- Rename OAuth env vars to GOOGLE_*.
+
 ## 0.4.4
 
 - Document changelog usage.
