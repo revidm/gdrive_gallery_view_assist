@@ -41,6 +41,20 @@ async def root() -> dict:
     }
 
 
+@app.get("/health")
+async def health() -> dict:
+    status = await store.get_status()
+    return {
+        "status": "ok",
+        "drive_folder_id": settings.drive_folder_id,
+        "refresh_interval_minutes": settings.refresh_interval_minutes,
+        "item_count": status["item_count"],
+        "last_refresh": status["last_refresh"],
+        "cache_items": status["cache_items"],
+        "cache_bytes": status["cache_bytes"],
+    }
+
+
 @app.get("/image")
 async def image() -> Response:
     item = await store.next_item()

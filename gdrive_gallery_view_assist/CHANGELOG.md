@@ -8,6 +8,10 @@
 
 - Rename OAuth env vars to GOOGLE_*.
 
+## 0.4.7
+
+- Add /health endpoint with cache and index metrics.
+
 ## 0.4.4
 
 - Document changelog usage.

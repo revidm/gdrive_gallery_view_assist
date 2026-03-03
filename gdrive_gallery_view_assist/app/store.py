@@ -120,6 +120,19 @@ class ItemStore:
                 return []
             return self._drive_cache.items
 
+    async def get_status(self) -> dict:
+        async with self._lock:
+            item_count = len(self._drive_cache.items) if self._drive_cache else 0
+            fetched_at = self._drive_cache.fetched_at if self._drive_cache else None
+            cache_items = len(self._image_cache)
+            cache_bytes = self._cache_bytes
+        return {
+            "item_count": item_count,
+            "last_refresh": fetched_at,
+            "cache_items": cache_items,
+            "cache_bytes": cache_bytes,
+        }
+
     async def _prefetch(self, items: list[DriveItem]) -> None:
         if not items:
             return

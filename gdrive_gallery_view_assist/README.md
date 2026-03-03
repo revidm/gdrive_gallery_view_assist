@@ -38,6 +38,7 @@ Home Assistant add-on that exposes a simple `/image` endpoint which serves a ran
 
 - `GET /`: health/status JSON
 - `GET /image`: returns a Google Drive image
+ - `GET /health`: status, cache, and index metrics
 No additional endpoints.
 
 ## Notes
