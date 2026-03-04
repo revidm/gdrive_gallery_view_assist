@@ -28,6 +28,10 @@
 
 - Fix add-on schema for resize profiles.
 
+## 0.5.3
+
+- Mark secrets as password fields and add friendly labels.
+
 ## 0.4.4
 
 - Document changelog usage.
