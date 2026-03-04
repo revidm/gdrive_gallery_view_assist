@@ -20,10 +20,7 @@ class Settings:
     cache_max_mb: int
     prefetch_next: bool
     daily_shuffle: bool
-    resize_enabled: bool
-    resize_width: int
-    resize_height: int
-    resize_mode: str
+    resize_profiles: dict[str, dict]
     port: int
     refresh_interval_minutes: int
     max_items: int
@@ -48,6 +45,26 @@ def _get_value(
             raise RuntimeError(f"Missing required config value: {key}")
         return default
     return value
+
+
+def _parse_resize_profiles(options: dict) -> dict[str, dict]:
+    profiles = options.get("resize_profiles")
+    if not isinstance(profiles, list):
+        return {}
+    parsed: dict[str, dict] = {}
+    for item in profiles:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name", "")).strip()
+        if not name:
+            continue
+        width = int(item.get("width", 0))
+        height = int(item.get("height", 0))
+        mode = str(item.get("mode", "cover")).strip()
+        if width <= 0 or height <= 0:
+            continue
+        parsed[name] = {"width": width, "height": height, "mode": mode}
+    return parsed
 
 
 def load_settings() -> Settings:
@@ -84,13 +101,7 @@ def load_settings() -> Settings:
             options, "daily_shuffle", "DAILY_SHUFFLE", "false"
         ).lower()
         == "true",
-        resize_enabled=_get_value(
-            options, "resize_enabled", "RESIZE_ENABLED", "false"
-        ).lower()
-        == "true",
-        resize_width=int(_get_value(options, "resize_width", "RESIZE_WIDTH", "960")),
-        resize_height=int(_get_value(options, "resize_height", "RESIZE_HEIGHT", "480")),
-        resize_mode=_get_value(options, "resize_mode", "RESIZE_MODE", "cover"),
+        resize_profiles=_parse_resize_profiles(options),
         port=int(_get_value(options, "port", "PORT", "8099")),
         refresh_interval_minutes=int(
             _get_value(

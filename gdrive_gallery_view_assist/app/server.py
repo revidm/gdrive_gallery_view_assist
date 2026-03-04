@@ -23,10 +23,7 @@ store = ItemStore(
     cache_max_mb=settings.cache_max_mb,
     prefetch_next=settings.prefetch_next,
     daily_shuffle=settings.daily_shuffle,
-    resize_enabled=settings.resize_enabled,
-    resize_width=settings.resize_width,
-    resize_height=settings.resize_height,
-    resize_mode=settings.resize_mode,
+    resize_profiles=settings.resize_profiles,
     refresh_interval_minutes=settings.refresh_interval_minutes,
     max_items=settings.max_items,
     mode=settings.mode,
@@ -60,13 +57,17 @@ async def health() -> dict:
 
 
 @app.get("/image")
-async def image() -> Response:
+@app.get("/image/{profile}")
+async def image(profile: str | None = None) -> Response:
     item = await store.next_item()
     if not item:
         return Response(content="No images found", status_code=404)
     if not isinstance(item, DriveItem):
         return Response(content="Invalid drive item", status_code=500)
-    cached = await store.get_image(item)
+    resize_profile = store.get_resize_profile(profile) if profile else None
+    if profile and not resize_profile:
+        return Response(content="Unknown resize profile", status_code=404)
+    cached = await store.get_image(item, resize_profile)
     return Response(content=cached.content, media_type=cached.content_type)
 
 

@@ -36,10 +36,7 @@ class ItemStore:
         cache_max_mb: int,
         prefetch_next: bool,
         daily_shuffle: bool,
-        resize_enabled: bool,
-        resize_width: int,
-        resize_height: int,
-        resize_mode: str,
+        resize_profiles: dict[str, dict],
         refresh_interval_minutes: int,
         max_items: int,
         mode: str,
@@ -58,10 +55,7 @@ class ItemStore:
         self._cache_max_mb = cache_max_mb
         self._prefetch_next = prefetch_next
         self._daily_shuffle = daily_shuffle
-        self._resize_enabled = resize_enabled
-        self._resize_width = resize_width
-        self._resize_height = resize_height
-        self._resize_mode = resize_mode
+        self._resize_profiles = resize_profiles
         self._refresh_interval = refresh_interval_minutes * 60
         self._max_items = max_items
         self._mode = mode
@@ -105,14 +99,16 @@ class ItemStore:
             self._schedule_prefetch(items)
         return item
 
-    async def get_image(self, item: DriveItem) -> CachedImage:
+    async def get_image(
+        self, item: DriveItem, profile: dict | None = None
+    ) -> CachedImage:
         if self._cache_images:
             cached = self._image_cache.get(item.id)
             if cached:
                 return cached
         content, content_type = await self._drive_client.download_file(item.id)
-        if self._resize_enabled:
-            content, content_type = self._resize_image(content, content_type)
+        if profile:
+            content, content_type = self._resize_image(content, content_type, profile)
         cached = CachedImage(
             content=content, content_type=content_type, fetched_at=time.time()
         )
@@ -204,18 +200,24 @@ class ItemStore:
         item_id, cached = self._image_cache.popitem()
         self._cache_bytes = max(self._cache_bytes - len(cached.content), 0)
 
-    def _resize_image(self, content: bytes, content_type: str) -> tuple[bytes, str]:
+    def get_resize_profile(self, name: str) -> dict | None:
+        return self._resize_profiles.get(name)
+
+    def _resize_image(
+        self, content: bytes, content_type: str, profile: dict
+    ) -> tuple[bytes, str]:
         try:
             image = Image.open(BytesIO(content))
         except Exception:
             return content, content_type
-        target_size = (self._resize_width, self._resize_height)
-        if self._resize_mode == "stretch":
-            resized = image.resize(target_size, Image.LANCZOS)
+        target_size = (profile["width"], profile["height"])
+        mode = profile.get("mode", "cover")
+        if mode == "stretch":
+            resized = image.resize(target_size, Image.Resampling.LANCZOS)
         else:
             resized = image.copy()
-            resized.thumbnail(target_size, Image.LANCZOS)
-            if self._resize_mode == "cover":
+            resized.thumbnail(target_size, Image.Resampling.LANCZOS)
+            if mode == "cover":
                 background = Image.new("RGB", target_size)
                 offset = (
                     (target_size[0] - resized.width) // 2,

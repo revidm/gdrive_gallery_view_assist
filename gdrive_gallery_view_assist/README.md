@@ -30,10 +30,7 @@ Home Assistant add-on that exposes a simple `/image` endpoint which serves a ran
 - `cache_max_mb`: max cache size in MB (0 = unlimited).
 - `prefetch_next`: download the next image in advance.
 - `daily_shuffle`: shuffle images in a stable daily order.
-- `resize_enabled`: resize images before serving.
-- `resize_width`: target width (default 960).
-- `resize_height`: target height (default 480).
-- `resize_mode`: `cover`, `contain`, or `stretch`.
+- `resize_profiles`: list of resize profiles used via `/image/{profile}`.
 - `mode`: `random` or `sequential`.
 - `refresh_interval_minutes`: refresh album list on this interval.
 - `max_items`: max images to keep in memory.
@@ -42,7 +39,8 @@ Home Assistant add-on that exposes a simple `/image` endpoint which serves a ran
 
 - `GET /`: health/status JSON
 - `GET /image`: returns a Google Drive image
- - `GET /health`: status, cache, and index metrics
+- `GET /health`: status, cache, and index metrics
+- `GET /image/{profile}`: returns resized image using profile
 No additional endpoints.
 
 ## Notes
@@ -61,6 +59,18 @@ export GOOGLE_CLIENT_ID="..."
 export GOOGLE_CLIENT_SECRET="..."
 export OAUTH_SCOPE="https://www.googleapis.com/auth/drive.readonly"
 python tools/google_oauth_helper.py
+```
+
+## Resize profiles
+
+You can define named profiles and request them as `/image/{profile}`:
+
+```yaml
+resize_profiles:
+  - name: echo5
+    width: 960
+    height: 480
+    mode: cover
 ```
 
 ## Drive Folder ID

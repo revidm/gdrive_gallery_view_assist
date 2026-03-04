@@ -20,9 +20,9 @@
 
 - Update GitHub URLs for new username.
 
-## 0.5.0
+## 0.5.1
 
-- Add optional image resize settings for display scaling.
+- Add resize profiles with `/image/{profile}` endpoints.
 
 ## 0.4.4
 
