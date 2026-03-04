@@ -59,7 +59,7 @@ async def health() -> dict:
 @app.get("/image")
 @app.get("/image/{profile}")
 async def image(profile: str | None = None) -> Response:
-    item = await store.next_item()
+    item = await store.next_item(profile)
     if not item:
         return Response(content="No images found", status_code=404)
     if not isinstance(item, DriveItem):
@@ -67,7 +67,7 @@ async def image(profile: str | None = None) -> Response:
     resize_profile = store.get_resize_profile(profile) if profile else None
     if profile and not resize_profile:
         return Response(content="Unknown resize profile", status_code=404)
-    cached = await store.get_image(item, resize_profile)
+    cached = await store.get_image(item, profile, resize_profile)
     return Response(content=cached.content, media_type=cached.content_type)
 
 

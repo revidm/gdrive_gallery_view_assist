@@ -82,7 +82,7 @@ class ItemStore:
         self._index = 0
         return cache
 
-    async def next_item(self) -> DriveItem | None:
+    async def next_item(self, profile_name: str | None = None) -> DriveItem | None:
         items = await self._get_drive_items()
         if not items:
             return None
@@ -92,18 +92,19 @@ class ItemStore:
             item = items[self._index % len(items)]
             self._index += 1
             if self._prefetch_next:
-                self._schedule_prefetch(items)
+                self._schedule_prefetch(items, profile_name)
             return item
         item = random.choice(items)
         if self._prefetch_next:
-            self._schedule_prefetch(items)
+            self._schedule_prefetch(items, profile_name)
         return item
 
     async def get_image(
-        self, item: DriveItem, profile: dict | None = None
+        self, item: DriveItem, profile_name: str | None, profile: dict | None = None
     ) -> CachedImage:
+        cache_key = self._cache_key(item.id, profile_name)
         if self._cache_images:
-            cached = self._image_cache.get(item.id)
+            cached = self._image_cache.get(cache_key)
             if cached:
                 return cached
         content, content_type = await self._drive_client.download_file(item.id)
@@ -113,7 +114,7 @@ class ItemStore:
             content=content, content_type=content_type, fetched_at=time.time()
         )
         if self._cache_images:
-            self._add_to_cache(item.id, cached)
+            self._add_to_cache(cache_key, cached)
         return cached
 
     async def _get_drive_items(self) -> list[DriveItem]:
@@ -146,24 +147,28 @@ class ItemStore:
             "cache_bytes": cache_bytes,
         }
 
-    async def _prefetch(self, items: list[DriveItem]) -> None:
+    async def _prefetch(self, items: list[DriveItem], profile_name: str | None) -> None:
         if not items:
             return
         if self._mode == "sequential":
             next_item = items[self._index % len(items)]
         else:
             next_item = random.choice(items)
-        if self._cache_images and next_item.id in self._image_cache:
+        cache_key = self._cache_key(next_item.id, profile_name)
+        if self._cache_images and cache_key in self._image_cache:
             return
         try:
-            await self.get_image(next_item)
+            profile = self.get_resize_profile(profile_name) if profile_name else None
+            await self.get_image(next_item, profile_name, profile)
         except Exception:
             return
 
-    def _schedule_prefetch(self, items: list[DriveItem]) -> None:
+    def _schedule_prefetch(
+        self, items: list[DriveItem], profile_name: str | None
+    ) -> None:
         if self._prefetch_task and not self._prefetch_task.done():
             return
-        self._prefetch_task = asyncio.create_task(self._prefetch(items))
+        self._prefetch_task = asyncio.create_task(self._prefetch(items, profile_name))
 
     def _filter_items(self, items: list[DriveItem]) -> list[DriveItem]:
         if not self._exclude_patterns:
@@ -184,7 +189,7 @@ class ItemStore:
         random.Random(seed).shuffle(seeded)
         return seeded
 
-    def _add_to_cache(self, item_id: str, cached: CachedImage) -> None:
+    def _add_to_cache(self, cache_key: str, cached: CachedImage) -> None:
         size_bytes = len(cached.content)
         if self._cache_max_mb > 0:
             max_bytes = self._cache_max_mb * 1024 * 1024
@@ -193,12 +198,16 @@ class ItemStore:
         if self._cache_max_items > 0:
             while len(self._image_cache) >= self._cache_max_items and self._image_cache:
                 self._evict_one()
-        self._image_cache[item_id] = cached
+        self._image_cache[cache_key] = cached
         self._cache_bytes += size_bytes
 
     def _evict_one(self) -> None:
         item_id, cached = self._image_cache.popitem()
         self._cache_bytes = max(self._cache_bytes - len(cached.content), 0)
+
+    def _cache_key(self, item_id: str, profile_name: str | None) -> str:
+        name = profile_name or "original"
+        return f"{item_id}:{name}"
 
     def get_resize_profile(self, name: str) -> dict | None:
         return self._resize_profiles.get(name)
