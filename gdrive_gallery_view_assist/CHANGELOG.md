@@ -62,3 +62,7 @@
 ## 0.5.6
 
 - Fix resize profile caching and prefetch behavior.
+
+## 0.5.7
+
+- Report /data storage usage in /health.
