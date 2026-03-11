@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 from dataclasses import dataclass
 import httpx
@@ -6,6 +7,8 @@ import httpx
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 FILES_URL = "https://www.googleapis.com/drive/v3/files"
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -36,7 +39,11 @@ class GoogleDriveClient:
                     "grant_type": "refresh_token",
                 }
                 response = await client.post(TOKEN_URL, data=payload)
-                response.raise_for_status()
+                try:
+                    response.raise_for_status()
+                except httpx.HTTPStatusError:
+                    LOGGER.error("Token refresh failed: %s", response.text.strip())
+                    raise
                 data = response.json()
                 self._access_token = data["access_token"]
                 expires_in = int(data.get("expires_in", 3600))

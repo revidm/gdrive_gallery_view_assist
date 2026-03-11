@@ -66,3 +66,7 @@
 ## 0.5.7
 
 - Report /data storage usage in /health.
+
+## 0.5.8
+
+- Log token refresh error responses from Google.
