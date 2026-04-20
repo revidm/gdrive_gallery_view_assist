@@ -70,3 +70,7 @@
 ## 0.5.8
 
 - Log token refresh error responses from Google.
+
+## 0.5.9
+
+- Add privacy policy document and link it in README.

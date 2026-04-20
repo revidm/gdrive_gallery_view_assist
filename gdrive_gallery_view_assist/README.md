@@ -47,6 +47,10 @@ No additional endpoints.
 
 Getting a refresh token requires a one-time OAuth flow. Use a helper script that requests `https://www.googleapis.com/auth/photoslibrary`, `https://www.googleapis.com/auth/photoslibrary.readonly`, and `https://www.googleapis.com/auth/photoslibrary.sharing` (needed for share links) and prints the refresh token. Once set, the add-on only uses the refresh token.
 
+## Privacy Policy
+
+See `PRIVACY_POLICY.md`.
+
 ### OAuth helper (optional)
 
 This repo includes a helper script you can run on your desktop to generate a refresh token:
