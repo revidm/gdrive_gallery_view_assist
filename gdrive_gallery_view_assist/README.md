@@ -51,6 +51,9 @@ Getting a refresh token requires a one-time OAuth flow. Use a helper script that
 
 See `PRIVACY_POLICY.md`.
 
+GitHub Pages URL (once enabled):
+https://revidm.github.io/gdrive_gallery_view_assist/
+
 ### OAuth helper (optional)
 
 This repo includes a helper script you can run on your desktop to generate a refresh token:
